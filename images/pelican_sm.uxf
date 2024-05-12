@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="15.1">
+  <zoom_level>9</zoom_level>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>351</x>
+      <y>315</y>
+      <w>153</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>carsGreenNoPed
+--
+lw=2
+valign=top</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>351</x>
+      <y>432</y>
+      <w>153</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>carsGreenInt
+--
+lw=2
+valign=top</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>351</x>
+      <y>567</y>
+      <w>153</w>
+      <h>81</h>
+    </coordinates>
+    <panel_attributes>carsGreenPedWait
+--
+lw=2
+valign=top</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>333</x>
+      <y>693</y>
+      <w>261</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>carsYellow
+--
+entry: emit(EV_CARS_YELLOW)
+lw=2
+valign=top</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>747</x>
+      <y>171</y>
+      <w>432</w>
+      <h>639</h>
+    </coordinates>
+    <panel_attributes>pedsEnabled
+--
+lw=2
+valign=top</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>333</x>
+      <y>234</y>
+      <w>261</w>
+      <h>441</h>
+    </coordinates>
+    <panel_attributes>carsGreen
+--
+entry: emit(EV_CARS_GREEN)
+lw=2
+valign=top</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>792</x>
+      <y>270</y>
+      <w>198</w>
+      <h>81</h>
+    </coordinates>
+    <panel_attributes>pedsWalk
+--
+entry: emit(EV_PEDS_WALK)
+lw=2
+valign=top</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>792</x>
+      <y>378</y>
+      <w>351</w>
+      <h>333</h>
+    </coordinates>
+    <panel_attributes>pedsFlash
+--
+lw=2
+valign=top</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>324</x>
+      <y>171</y>
+      <w>351</w>
+      <h>639</h>
+    </coordinates>
+    <panel_attributes>carsEnabled
+--
+lw=2
+valign=top</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>360</x>
+      <y>108</y>
+      <w>126</w>
+      <h>81</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+fg=blue
+lw=1.5</panel_attributes>
+    <additional_attributes>10.0;10.0;120.0;10.0;120.0;70.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLSpecialState</id>
+    <coordinates>
+      <x>351</x>
+      <y>108</y>
+      <w>18</w>
+      <h>18</h>
+    </coordinates>
+    <panel_attributes>type=initial
+bg=blue
+fg=blue</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLSpecialState</id>
+    <coordinates>
+      <x>360</x>
+      <y>198</y>
+      <w>18</w>
+      <h>18</h>
+    </coordinates>
+    <panel_attributes>type=initial
+bg=blue
+fg=blue</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>378</x>
+      <y>279</y>
+      <w>117</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+fg=blue
+lw=1.5</panel_attributes>
+    <additional_attributes>10.0;10.0;110.0;10.0;110.0;40.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLSpecialState</id>
+    <coordinates>
+      <x>369</x>
+      <y>279</y>
+      <w>18</w>
+      <h>18</h>
+    </coordinates>
+    <panel_attributes>type=initial
+bg=blue
+fg=blue</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>342</x>
+      <y>342</y>
+      <w>234</w>
+      <h>279</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m1=EV_PEDS_BUTTON
+fg=blue
+lw=1.5</panel_attributes>
+    <additional_attributes>10.0;10.0;240.0;10.0;240.0;290.0;180.0;290.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>342</x>
+      <y>378</y>
+      <w>216</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m1=EV_LIGHT_TIMEOUT
+fg=blue
+lw=1.5</panel_attributes>
+    <additional_attributes>10.0;10.0;220.0;10.0;220.0;90.0;180.0;90.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>342</x>
+      <y>495</y>
+      <w>315</w>
+      <h>279</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m1=EV_PEDS_BUTTON
+fg=blue
+lw=1.5</panel_attributes>
+    <additional_attributes>10.0;10.0;330.0;10.0;330.0;290.0;280.0;290.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>342</x>
+      <y>612</y>
+      <w>297</w>
+      <h>135</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m1=EV_LIGHT_TIMEOUT
+fg=blue
+lw=1.5</panel_attributes>
+    <additional_attributes>10.0;10.0;310.0;10.0;310.0;130.0;280.0;130.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>324</x>
+      <y>765</y>
+      <w>441</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m1=EV_LIGHT_TIMEOUT
+fg=blue
+lw=2
+lw=1.5</panel_attributes>
+    <additional_attributes>10.0;10.0;470.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>819</x>
+      <y>234</y>
+      <w>117</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+lw=2
+fg=blue
+lw=1.5</panel_attributes>
+    <additional_attributes>10.0;10.0;110.0;10.0;110.0;40.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLSpecialState</id>
+    <coordinates>
+      <x>810</x>
+      <y>234</y>
+      <w>18</w>
+      <h>18</h>
+    </coordinates>
+    <panel_attributes>type=initial
+bg=blue
+fg=blue</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>783</x>
+      <y>315</y>
+      <w>396</w>
+      <h>135</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m1=EV_LIGHT_TIMEOUT
+fg=blue
+lw=1.5</panel_attributes>
+    <additional_attributes>10.0;10.0;420.0;10.0;420.0;130.0;400.0;130.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>783</x>
+      <y>450</y>
+      <w>207</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m1=EV_LIGHT_TIMEOUT
+fg=blue
+lw=2
+lw=1.5</panel_attributes>
+    <additional_attributes>10.0;10.0;210.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLSpecialState</id>
+    <coordinates>
+      <x>972</x>
+      <y>441</y>
+      <w>36</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>type=decision
+fg=blue
+lw=2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>666</x>
+      <y>468</y>
+      <w>369</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m1=else
+fg=blue
+lw=1.5</panel_attributes>
+    <additional_attributes>360.0;10.0;360.0;50.0;10.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLSpecialState</id>
+    <coordinates>
+      <x>972</x>
+      <y>567</y>
+      <w>36</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>type=decision
+fg=blue
+lw=2</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>999</x>
+      <y>450</y>
+      <w>126</w>
+      <h>153</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+m1=flashCntr &gt; 0
+fg=blue
+lw=1.5</panel_attributes>
+    <additional_attributes>10.0;10.0;110.0;10.0;110.0;150.0;10.0;150.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>837</x>
+      <y>576</y>
+      <w>243</w>
+      <h>135</h>
+    </coordinates>
+    <panel_attributes>lt=-[]
+m2=emit(EV_PEDS_WALK)
+fg=blue
+lw=1.5</panel_attributes>
+    <additional_attributes>150.0;10.0;10.0;10.0;10.0;120.0;250.0;120.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>918</x>
+      <y>594</y>
+      <w>162</w>
+      <h>72</h>
+    </coordinates>
+    <panel_attributes>lt=-[]
+m2=emit(EV_PEDS_OFF)
+fg=blue
+lw=1.5</panel_attributes>
+    <additional_attributes>80.0;10.0;80.0;50.0;160.0;50.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>369</x>
+      <y>198</y>
+      <w>144</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>lt=-&gt;
+fg=blue
+lw=1.5</panel_attributes>
+    <additional_attributes>10.0;10.0;140.0;10.0;140.0;40.0</additional_attributes>
+  </element>
+</diagram>
