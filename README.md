@@ -134,6 +134,13 @@ In the /state machine/statechart/ approach there is a gap between the
 requirements/specification and statechart formulation. In behavioral programming
 there is no gap.
 
+## Water-taps application
+
+The simplest application discussed in literature in context of **BP** visualized
+in an informal diagram:
+
+![waterflow](images/waterflow_bp.png)
+
 ## Warnings and to-dos
 
  - [ ] the execution semantics were based on natural language descriptions of the paradigm,
