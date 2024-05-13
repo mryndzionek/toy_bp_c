@@ -144,8 +144,8 @@ void bp_run(bp_ctx_t *bp_ctx)
             LOG(DEBUG, "Received bid:  id: %d, req: %08x, waiting: %08x, blocked: %08x", ev_msg.id, ev_msg.req, ev_msg.waiting, ev_msg.blocked);
 
             size_t i = ev_msg.id;
-            ev_msgs[i].req |= ev_msg.req;
-            ev_msgs[i].waiting |= ev_msg.waiting;
+            ev_msgs[i].req = ev_msg.req;
+            ev_msgs[i].waiting = ev_msg.waiting;
             ev_msgs[i].blocked = ev_msg.blocked;
 
             requested |= ev_msgs[i].req;
