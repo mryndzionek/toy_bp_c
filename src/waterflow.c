@@ -27,16 +27,16 @@ const char *ev_to_str(ev_t ev)
 
 static void bt_cold(bt_ctx_t *ctx)
 {
-    bt_sync(ctx, EV_ADD_COLD, 0, 0);
-    bt_sync(ctx, EV_ADD_COLD, 0, 0);
-    bt_sync(ctx, EV_ADD_COLD, 0, 0);
+    bt_sync(ctx, EV_ADD_COLD, EV_NONE, EV_NONE);
+    bt_sync(ctx, EV_ADD_COLD, EV_NONE, EV_NONE);
+    bt_sync(ctx, EV_ADD_COLD, EV_NONE, EV_NONE);
 }
 
 static void bt_hot(bt_ctx_t *ctx)
 {
-    bt_sync(ctx, EV_ADD_HOT, 0, 0);
-    bt_sync(ctx, EV_ADD_HOT, 0, 0);
-    bt_sync(ctx, EV_ADD_HOT, 0, 0);
+    bt_sync(ctx, EV_ADD_HOT, EV_NONE, EV_NONE);
+    bt_sync(ctx, EV_ADD_HOT, EV_NONE, EV_NONE);
+    bt_sync(ctx, EV_ADD_HOT, EV_NONE, EV_NONE);
 }
 
 static void bt_interleave(bt_ctx_t *ctx)

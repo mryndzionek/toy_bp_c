@@ -12,6 +12,8 @@ typedef ev_t (*external_ev_clbk_t)(void);
 
 typedef struct _bp_ctx_t bp_ctx_t;
 
+static const ev_t EV_NONE = 0;
+
 bp_ctx_t *bp_new(bt_thread_t *threads, size_t n, external_ev_clbk_t ext_ev_clbk);
 ev_t bt_sync(bt_ctx_t *ctx, ev_t req, ev_t waiting, ev_t blocked);
 void bp_run(bp_ctx_t *bp_ctx);

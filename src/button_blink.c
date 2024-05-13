@@ -58,13 +58,13 @@ static void bt_blink(bt_ctx_t *ctx)
 {
     while (true)
     {
-        bt_sync(ctx, EV_LED_ON, 0, 0);
+        bt_sync(ctx, EV_LED_ON, EV_NONE, EV_NONE);
         tmr_hndl = start_timer(EV_TIMEOUT, 1000);
-        bt_sync(ctx, 0, EV_TIMEOUT, 0);
+        bt_sync(ctx, EV_NONE, EV_TIMEOUT, EV_NONE);
 
-        bt_sync(ctx, EV_LED_OFF, 0, 0);
+        bt_sync(ctx, EV_LED_OFF, EV_NONE, EV_NONE);
         tmr_hndl = start_timer(EV_TIMEOUT, 1000);
-        bt_sync(ctx, 0, EV_TIMEOUT, 0);
+        bt_sync(ctx, EV_NONE, EV_TIMEOUT, EV_NONE);
     }
 }
 
@@ -72,9 +72,9 @@ static void bt_button(bt_ctx_t *ctx)
 {
     while (true)
     {
-        bt_sync(ctx, 0, EV_BUTTON, 0);
+        bt_sync(ctx, EV_NONE, EV_BUTTON, EV_NONE);
         stop_timer(tmr_hndl);
-        bt_sync(ctx, 0, EV_BUTTON, EV_TIMEOUT);
+        bt_sync(ctx, EV_NONE, EV_BUTTON, EV_TIMEOUT);
         tmr_hndl = start_timer(EV_TIMEOUT, 1000);
     }
 }

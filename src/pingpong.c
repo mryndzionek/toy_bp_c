@@ -29,8 +29,8 @@ static void bt_ping(bt_ctx_t *ctx)
 {
     for (size_t i = 0; i < 10; i++)
     {
-        bt_sync(ctx, EV_PING, 0, 0);
-        bt_sync(ctx, 0, EV_PONG, 0);
+        bt_sync(ctx, EV_PING, EV_NONE, EV_NONE);
+        bt_sync(ctx, EV_NONE, EV_PONG, EV_NONE);
     }
 }
 
@@ -38,8 +38,8 @@ static void bt_pong(bt_ctx_t *ctx)
 {
     for (size_t i = 0; i < 10; i++)
     {
-        bt_sync(ctx, 0, EV_PING, 0);
-        bt_sync(ctx, EV_PONG, 0, 0);
+        bt_sync(ctx, EV_NONE, EV_PING, EV_NONE);
+        bt_sync(ctx, EV_PONG, EV_NONE, EV_NONE);
     }
 }
 

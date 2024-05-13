@@ -61,17 +61,17 @@ static void bt_cycle(bt_ctx_t *ctx)
 {
     while (true)
     {
-        bt_sync(ctx, EV_CARS_GREEN, 0, 0);
-        bt_sync(ctx, EV_CARS_YELLOW, 0, 0);
-        bt_sync(ctx, EV_PEDS_WALK, 0, 0);
+        bt_sync(ctx, EV_CARS_GREEN, EV_NONE, EV_NONE);
+        bt_sync(ctx, EV_CARS_YELLOW, EV_NONE, EV_NONE);
+        bt_sync(ctx, EV_PEDS_WALK, EV_NONE, EV_NONE);
 
         for (size_t i = 0; i < 3; i++)
         {
             // Flash pedestrian light
-            bt_sync(ctx, EV_PEDS_OFF, 0, 0);
-            bt_sync(ctx, EV_PEDS_WALK, 0, 0);
+            bt_sync(ctx, EV_PEDS_OFF, EV_NONE, EV_NONE);
+            bt_sync(ctx, EV_PEDS_WALK, EV_NONE, EV_NONE);
         }
-        bt_sync(ctx, EV_PEDS_OFF, 0, 0);
+        bt_sync(ctx, EV_PEDS_OFF, EV_NONE, EV_NONE);
     }
 }
 
@@ -83,7 +83,7 @@ static void bt_intersperse(bt_ctx_t *ctx)
     while (true)
     {
         // on EV_CARS_YELLOW, or EV_PEDS_WALK, or EV_PEDS_OFF
-        ev_t ev = bt_sync(ctx, 0, EV_CARS_YELLOW | EV_PEDS_WALK | EV_PEDS_OFF, 0);
+        ev_t ev = bt_sync(ctx, EV_NONE, EV_CARS_YELLOW | EV_PEDS_WALK | EV_PEDS_OFF, EV_NONE);
         if (ev == EV_CARS_YELLOW)
         {
             tmout = 3000;
@@ -95,7 +95,7 @@ static void bt_intersperse(bt_ctx_t *ctx)
         // start a timeout timer
         start_timer(EV_LIGHT_TIMEOUT, tmout);
         // wait for the timer event while blocking the successive events
-        bt_sync(ctx, 0, EV_LIGHT_TIMEOUT, EV_PEDS_WALK | EV_PEDS_OFF | EV_CARS_GREEN);
+        bt_sync(ctx, EV_NONE, EV_LIGHT_TIMEOUT, EV_PEDS_WALK | EV_PEDS_OFF | EV_CARS_GREEN);
     }
 }
 
@@ -106,8 +106,8 @@ static void bt_trigger(bt_ctx_t *ctx)
 {
     while (true)
     {
-        bt_sync(ctx, 0, EV_PEDS_BUTTON, EV_CARS_YELLOW);
-        bt_sync(ctx, 0, EV_CARS_GREEN, EV_PEDS_BUTTON);
+        bt_sync(ctx, EV_NONE, EV_PEDS_BUTTON, EV_CARS_YELLOW);
+        bt_sync(ctx, EV_NONE, EV_CARS_GREEN, EV_PEDS_BUTTON);
     }
 }
 
@@ -119,9 +119,9 @@ static void bt_min_cars_green(bt_ctx_t *ctx)
     {
         // after 'cars green' block 'cars yellow'
         // for 5s
-        bt_sync(ctx, 0, EV_CARS_GREEN, 0);
+        bt_sync(ctx, EV_NONE, EV_CARS_GREEN, EV_NONE);
         start_timer(EV_LIGHT_TIMEOUT, 5000);
-        bt_sync(ctx, 0, EV_LIGHT_TIMEOUT, EV_CARS_YELLOW);
+        bt_sync(ctx, EV_NONE, EV_LIGHT_TIMEOUT, EV_CARS_YELLOW);
     }
 }
 
