@@ -1,6 +1,9 @@
 #include "bp.h"
 
 #include <stdbool.h>
+#include <time.h>
+#include <stdlib.h>
+
 #include <libdill.h>
 
 #include "logging.h"
@@ -47,11 +50,48 @@ static coroutine void bt_thread(bt_ctx_t *ctx)
     log_assert(rc == 0);
 }
 
+static ev_t choose_random(ev_t allowed)
+{
+    ev_t chosen = EV_NONE;
+
+    // count bits
+    size_t n_bits = 0;
+    for (int j = sizeof(ev_t) * 8 - 1; j >= 0; j--)
+    {
+        if (allowed & (1UL << j))
+        {
+            n_bits++;
+        }
+    }
+
+    // get a random number from range [0;n_bits)
+    int r = rand() % n_bits;
+
+    n_bits = 0;
+    for (int j = sizeof(ev_t) * 8 - 1; j >= 0; j--)
+    {
+        if (allowed & (1UL << j))
+        {
+            // choose random bit
+            if (n_bits == r)
+            {
+                chosen = 1UL << j;
+                break;
+            }
+            n_bits++;
+        }
+    }
+
+    return chosen;
+}
+
 bp_ctx_t *bp_new(bt_init_t *bt_init, size_t n, external_ev_clbk_t ext_ev_clbk, render_clbk_t render_clbk)
 {
     int rc;
     int ch_shared[2];
     int ch_tmp[2];
+
+    srand(time(NULL));
 
     bp_ctx_t *bp_ctx = (bp_ctx_t *)malloc(sizeof(bp_ctx_t));
     if (!bp_ctx)
@@ -205,15 +245,7 @@ void bp_run(bp_ctx_t *bp_ctx)
             {
                 allowed &= (ev_msgs[i].req);
 
-                // choose highest value event (arbitrary choice, can be something else)
-                for (int j = sizeof(ev_t) * 8 - 1; j >= 0; j--)
-                {
-                    if (allowed & (1UL << j))
-                    {
-                        chosen = 1UL << j;
-                        break;
-                    }
-                }
+                chosen = choose_random(allowed);
 
                 LOG(INFO, "Selected: %s", ev_to_str(chosen));
                 if (bp_ctx->render_clbk)
