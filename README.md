@@ -9,6 +9,8 @@ libdill's channels.
 
 ## A case study - **PE**destrian **LI**ght **CON**trolled crossing simulation
 
+[pelican.c](src/pelican.c)
+
 Traditionally the behavior of a [Pelican crossing](https://en.wikipedia.org/wiki/Pelican_crossing)
 is presented by a hierarchical /state machine/statechart/:
 
@@ -132,14 +134,21 @@ each other. B-threads are essentially executable and composable scenarios/storie
 
 In the /state machine/statechart/ approach there is a gap between the
 requirements/specification and statechart formulation. In behavioral programming
-there is no gap.
+there is no gap. The implementation is as close as possible to behavior specification.
 
 ## Water-taps application
 
-The simplest application discussed in literature in context of **BP** visualized
-in an informal diagram:
+[waterflow.c](src/waterflow.c)
+The simplest application discussed in literature in context of **BP**.
+Visualized in an informal diagram:
 
 ![waterflow](images/waterflow_bp.png)
+
+## Tic-tac-toe
+
+[tictactoe.c](src/tictactoe.c)
+
+The classic paper-and-pencil game. Implemented using 53 b-threads.
 
 ## Warnings and to-dos
 
