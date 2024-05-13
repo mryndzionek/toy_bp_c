@@ -150,6 +150,16 @@ Visualized in an informal diagram:
 
 The classic paper-and-pencil game. Implemented using 53 b-threads.
 
+![tictactoe](images/tictactoe.gif)
+
+Keyboard controls:
+
+```
+[q][w][e]
+[a][s][d]
+[z][x][c]
+```
+
 ## Warnings and to-dos
 
  - [ ] the execution semantics were based on natural language descriptions of the paradigm,
