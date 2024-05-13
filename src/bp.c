@@ -9,7 +9,7 @@ extern const char *ev_to_str(ev_t ev);
 
 struct _bt_ctx_t
 {
-    bt_thread_t thread;
+    bt_init_t init;
     uint8_t id;
     int ch_in;
     int ch_out;
@@ -18,11 +18,12 @@ struct _bt_ctx_t
 
 struct _bp_ctx_t
 {
-    bt_ctx_t *ctxs;
+    bt_ctx_t *bt_ctx;
     int *ch_out;
     size_t n;
     int ch_in;
     external_ev_clbk_t ext_ev_clbk;
+    render_clbk_t render_clbk;
 };
 
 typedef struct
@@ -35,19 +36,18 @@ typedef struct
 
 static coroutine void bt_thread(bt_ctx_t *ctx)
 {
-    ctx->thread(ctx);
+    ctx->init.thread(ctx, ctx->init.user_ctx);
 
+    ctx->done = true;
     ev_msg_t done = {0};
     done.id = ctx->id;
 
     LOG(DEBUG, "Ending  id: %d", ctx->id);
     int rc = chsend(ctx->ch_out, &done, sizeof(ev_msg_t), -1);
     log_assert(rc == 0);
-
-    ctx->done = true;
 }
 
-bp_ctx_t *bp_new(bt_thread_t *threads, size_t n, external_ev_clbk_t ext_ev_clbk)
+bp_ctx_t *bp_new(bt_init_t *bt_init, size_t n, external_ev_clbk_t ext_ev_clbk, render_clbk_t render_clbk)
 {
     int rc;
     int ch_shared[2];
@@ -59,8 +59,8 @@ bp_ctx_t *bp_new(bt_thread_t *threads, size_t n, external_ev_clbk_t ext_ev_clbk)
         return NULL;
     }
 
-    bp_ctx->ctxs = (bt_ctx_t *)malloc(n * sizeof(bt_ctx_t));
-    if (!bp_ctx->ctxs)
+    bp_ctx->bt_ctx = (bt_ctx_t *)malloc(n * sizeof(bt_ctx_t));
+    if (!bp_ctx->bt_ctx)
     {
         free(bp_ctx);
         return NULL;
@@ -69,7 +69,7 @@ bp_ctx_t *bp_new(bt_thread_t *threads, size_t n, external_ev_clbk_t ext_ev_clbk)
     bp_ctx->ch_out = (int *)malloc(n * sizeof(int));
     if (!bp_ctx->ch_out)
     {
-        free(bp_ctx->ctxs);
+        free(bp_ctx->bt_ctx);
         free(bp_ctx);
         return NULL;
     }
@@ -83,16 +83,17 @@ bp_ctx_t *bp_new(bt_thread_t *threads, size_t n, external_ev_clbk_t ext_ev_clbk)
         log_assert(rc >= 0);
 
         bp_ctx->ch_in = ch_shared[1];
-        bp_ctx->ctxs[i].ch_in = ch_tmp[1];
-        bp_ctx->ctxs[i].ch_out = ch_shared[0];
-        bp_ctx->ctxs[i].thread = threads[i];
-        bp_ctx->ctxs[i].id = i;
+        bp_ctx->bt_ctx[i].ch_in = ch_tmp[1];
+        bp_ctx->bt_ctx[i].ch_out = ch_shared[0];
+        bp_ctx->bt_ctx[i].init = bt_init[i];
+        bp_ctx->bt_ctx[i].id = i;
         bp_ctx->ch_out[i] = ch_tmp[0];
-        bp_ctx->ctxs->done = false;
+        bp_ctx->bt_ctx->done = false;
     }
 
     bp_ctx->n = n;
     bp_ctx->ext_ev_clbk = ext_ev_clbk;
+    bp_ctx->render_clbk = render_clbk;
 
     return bp_ctx;
 }
@@ -128,7 +129,7 @@ void bp_run(bp_ctx_t *bp_ctx)
         ev_msgs[i].waiting = 0;
         ev_msgs[i].blocked = 0;
 
-        go(bt_thread(&bp_ctx->ctxs[i]));
+        go(bt_thread(&bp_ctx->bt_ctx[i]));
     }
 
     size_t req_num = bp_ctx->n;
@@ -140,7 +141,7 @@ void bp_run(bp_ctx_t *bp_ctx)
         {
             int rc = chrecv(bp_ctx->ch_in, &ev_msg, sizeof(ev_msg_t), -1);
             log_assert(rc == 0);
-            LOG(DEBUG, "Received bid:  id: %d, req: %d, waiting: %d, blocked: %d", ev_msg.id, ev_msg.req, ev_msg.waiting, ev_msg.blocked);
+            LOG(DEBUG, "Received bid:  id: %d, req: %08x, waiting: %08x, blocked: %08x", ev_msg.id, ev_msg.req, ev_msg.waiting, ev_msg.blocked);
 
             size_t i = ev_msg.id;
             ev_msgs[i].req |= ev_msg.req;
@@ -152,12 +153,12 @@ void bp_run(bp_ctx_t *bp_ctx)
             waiting |= ev_msgs[i].waiting;
         }
 
-        LOG(DEBUG, "Requested: %d", requested);
-        LOG(DEBUG, "Waiting: %d", waiting);
-        LOG(DEBUG, "Blocked: %d", blocked);
+        LOG(DEBUG, "Requested: %08x", requested);
+        LOG(DEBUG, "Waiting: %08x", waiting);
+        LOG(DEBUG, "Blocked: %08x", blocked);
 
         ev_t allowed = requested & (~blocked);
-        LOG(DEBUG, "Allowed: %d", allowed);
+        LOG(DEBUG, "Allowed: %08x", allowed);
 
         ev_t chosen = 0;
 
@@ -177,6 +178,10 @@ void bp_run(bp_ctx_t *bp_ctx)
                             {
                                 chosen = 1UL << j;
                                 LOG(INFO, "Selected (external): %s", ev_to_str(chosen));
+                                if (bp_ctx->render_clbk)
+                                {
+                                    bp_ctx->render_clbk(chosen);
+                                }
                                 break;
                             }
                         }
@@ -211,6 +216,10 @@ void bp_run(bp_ctx_t *bp_ctx)
                 }
 
                 LOG(INFO, "Selected: %s", ev_to_str(chosen));
+                if (bp_ctx->render_clbk)
+                {
+                    bp_ctx->render_clbk(chosen);
+                }
                 LOG(DEBUG, "Sending request to id: %ld", i);
                 int rc = chsend(bp_ctx->ch_out[i], &chosen, sizeof(ev_t), -1);
                 log_assert(rc == 0);
@@ -231,11 +240,14 @@ void bp_run(bp_ctx_t *bp_ctx)
         {
             if (chosen & (ev_msgs[i].waiting))
             {
-                LOG(DEBUG, "Sending wait to id: %ld", i);
-                int rc = chsend(bp_ctx->ch_out[i], &chosen, sizeof(ev_t), -1);
-                log_assert(rc == 0);
-                ev_msgs[i].waiting &= ~chosen;
-                req_num++;
+                if (!bp_ctx->bt_ctx[i].done)
+                {
+                    LOG(DEBUG, "Sending wait to id: %ld", i);
+                    int rc = chsend(bp_ctx->ch_out[i], &chosen, sizeof(ev_t), -1);
+                    log_assert(rc == 0);
+                    ev_msgs[i].waiting &= ~chosen;
+                    req_num++;
+                }
             }
             else
             {
@@ -254,7 +266,7 @@ void bp_destroy(bp_ctx_t **bp_ctx_p)
     {
         bp_ctx_t *bp_ctx = *bp_ctx_p;
         free(bp_ctx->ch_out);
-        free(bp_ctx->ctxs);
+        free(bp_ctx->bt_ctx);
         free(bp_ctx);
         *bp_ctx_p = NULL;
     }

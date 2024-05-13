@@ -54,7 +54,7 @@ static ev_t external_ev_clbk(void)
     return ev;
 }
 
-static void bt_blink(bt_ctx_t *ctx)
+static void bt_blink(bt_ctx_t *ctx, void *user_ctx)
 {
     while (true)
     {
@@ -68,7 +68,7 @@ static void bt_blink(bt_ctx_t *ctx)
     }
 }
 
-static void bt_button(bt_ctx_t *ctx)
+static void bt_button(bt_ctx_t *ctx, void *user_ctx)
 {
     while (true)
     {
@@ -79,16 +79,21 @@ static void bt_button(bt_ctx_t *ctx)
     }
 }
 
+static ev_t key_decoder(char key)
+{
+    return EV_BUTTON;
+}
+
 int main(int argc, char *argv[])
 {
-    bt_thread_t bthreads[] = {bt_blink, bt_button};
+    bt_init_t bthreads[] = {{bt_blink, NULL}, {bt_button, NULL}};
     const size_t n = sizeof(bthreads) / sizeof(bthreads[0]);
 
     logging_init();
 
-    ext_ev_ch = prepare_ext_event_pipeline(EV_BUTTON);
+    ext_ev_ch = prepare_ext_event_pipeline(key_decoder);
 
-    bp_ctx_t *bp_ctx = bp_new(bthreads, n, external_ev_clbk);
+    bp_ctx_t *bp_ctx = bp_new(bthreads, n, external_ev_clbk, NULL);
     log_assert(bp_ctx);
 
     LOG(INFO, "Starting");

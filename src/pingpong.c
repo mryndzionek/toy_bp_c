@@ -25,7 +25,7 @@ const char *ev_to_str(ev_t ev)
     }
 }
 
-static void bt_ping(bt_ctx_t *ctx)
+static void bt_ping(bt_ctx_t *ctx, void *user_ctx)
 {
     for (size_t i = 0; i < 10; i++)
     {
@@ -34,7 +34,7 @@ static void bt_ping(bt_ctx_t *ctx)
     }
 }
 
-static void bt_pong(bt_ctx_t *ctx)
+static void bt_pong(bt_ctx_t *ctx, void *user_ctx)
 {
     for (size_t i = 0; i < 10; i++)
     {
@@ -45,12 +45,12 @@ static void bt_pong(bt_ctx_t *ctx)
 
 int main(int argc, char *argv[])
 {
-    bt_thread_t bthreads[] = {bt_ping, bt_pong};
+    bt_init_t bthreads[] = {{bt_ping, NULL}, {bt_pong, NULL}};
     const size_t n = sizeof(bthreads) / sizeof(bthreads[0]);
 
     logging_init();
 
-    bp_ctx_t *bp_ctx = bp_new(bthreads, n, NULL);
+    bp_ctx_t *bp_ctx = bp_new(bthreads, n, NULL, NULL);
     log_assert(bp_ctx);
 
     LOG(INFO, "Starting");

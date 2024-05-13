@@ -6,7 +6,9 @@
 
 #include "bp.h"
 
-int prepare_ext_event_pipeline(ev_t key_ev);
+typedef ev_t (*key_decoder_t)(char key);
+
+int prepare_ext_event_pipeline(key_decoder_t key_decoder);
 int start_timer(ev_t ev, int64_t ms);
 void stop_timer(int hndl);
 

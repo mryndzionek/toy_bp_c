@@ -25,21 +25,21 @@ const char *ev_to_str(ev_t ev)
     }
 }
 
-static void bt_cold(bt_ctx_t *ctx)
+static void bt_cold(bt_ctx_t *ctx, void *user_ctx)
 {
     bt_sync(ctx, EV_ADD_COLD, EV_NONE, EV_NONE);
     bt_sync(ctx, EV_ADD_COLD, EV_NONE, EV_NONE);
     bt_sync(ctx, EV_ADD_COLD, EV_NONE, EV_NONE);
 }
 
-static void bt_hot(bt_ctx_t *ctx)
+static void bt_hot(bt_ctx_t *ctx, void *user_ctx)
 {
     bt_sync(ctx, EV_ADD_HOT, EV_NONE, EV_NONE);
     bt_sync(ctx, EV_ADD_HOT, EV_NONE, EV_NONE);
     bt_sync(ctx, EV_ADD_HOT, EV_NONE, EV_NONE);
 }
 
-static void bt_interleave(bt_ctx_t *ctx)
+static void bt_interleave(bt_ctx_t *ctx, void *user_ctx)
 {
     while (true)
     {
@@ -50,12 +50,14 @@ static void bt_interleave(bt_ctx_t *ctx)
 
 int main(int argc, char *argv[])
 {
-    bt_thread_t bthreads[] = {bt_hot, bt_cold, bt_interleave};
+    bt_init_t bthreads[] = {{bt_hot, NULL},
+                            {bt_cold, NULL},
+                            {bt_interleave, NULL}};
     const size_t n = sizeof(bthreads) / sizeof(bthreads[0]);
 
     logging_init();
 
-    bp_ctx_t *bp_ctx = bp_new(bthreads, n, NULL);
+    bp_ctx_t *bp_ctx = bp_new(bthreads, n, NULL, NULL);
     log_assert(bp_ctx);
 
     LOG(INFO, "Starting");

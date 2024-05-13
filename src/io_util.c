@@ -7,7 +7,7 @@
 #include "logging.h"
 
 static int ext_ev_ch[2];
-static ev_t g_key_ev;
+static key_decoder_t g_key_dec;
 
 static coroutine void key_press_handler(int out_ch)
 {
@@ -27,8 +27,9 @@ static coroutine void key_press_handler(int out_ch)
             break;
         }
 
-        getc(stdin);
-        ret = chsend(out_ch, &g_key_ev, sizeof(ev_t), -1);
+        int c = getc(stdin);
+        ev_t ev = g_key_dec(c);
+        ret = chsend(out_ch, &ev, sizeof(ev_t), -1);
         if (ret < 0)
         {
             break;
@@ -66,11 +67,11 @@ void stop_timer(int hndl)
     log_assert(rc == 0);
 }
 
-int prepare_ext_event_pipeline(ev_t key_ev)
+int prepare_ext_event_pipeline(key_decoder_t key_decoder)
 {
     int rc;
 
-    g_key_ev = key_ev;
+    g_key_dec = key_decoder;
     rc = chmake(ext_ev_ch);
     log_assert(rc == 0);
     log_assert(ext_ev_ch[0] >= 0);

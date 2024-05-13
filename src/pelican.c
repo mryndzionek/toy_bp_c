@@ -57,7 +57,7 @@ const char *ev_to_str(ev_t ev)
 
 // the main behavior of the pelican crossing
 // is cycling the lights in order
-static void bt_cycle(bt_ctx_t *ctx)
+static void bt_cycle(bt_ctx_t *ctx, void *user_ctx)
 {
     while (true)
     {
@@ -76,7 +76,7 @@ static void bt_cycle(bt_ctx_t *ctx)
 }
 
 // the light changes are interspersed by time delays
-static void bt_intersperse(bt_ctx_t *ctx)
+static void bt_intersperse(bt_ctx_t *ctx, void *user_ctx)
 {
     int64_t tmout;
 
@@ -102,7 +102,7 @@ static void bt_intersperse(bt_ctx_t *ctx)
 // light cycling sequence is started by pressing the
 // "pedestrian waiting" button and the next cycle can
 // only start afte 'cars green' light
-static void bt_trigger(bt_ctx_t *ctx)
+static void bt_trigger(bt_ctx_t *ctx, void *user_ctx)
 {
     while (true)
     {
@@ -113,7 +113,7 @@ static void bt_trigger(bt_ctx_t *ctx)
 
 // makes sure cars have guaranteed minimal time
 // of green light
-static void bt_min_cars_green(bt_ctx_t *ctx)
+static void bt_min_cars_green(bt_ctx_t *ctx, void *user_ctx)
 {
     while (true)
     {
@@ -136,16 +136,24 @@ static ev_t external_ev_clbk(void)
     return ev;
 }
 
+static ev_t key_decoder(char key)
+{
+    return EV_PEDS_BUTTON;
+}
+
 int main(int argc, char *argv[])
 {
-    bt_thread_t bthreads[] = {bt_cycle, bt_intersperse, bt_trigger, bt_min_cars_green};
+    bt_init_t bthreads[] = {{bt_cycle, NULL},
+                            {bt_intersperse, NULL},
+                            {bt_trigger, NULL},
+                            {bt_min_cars_green, NULL}};
     const size_t n = sizeof(bthreads) / sizeof(bthreads[0]);
 
     logging_init();
 
-    ext_ev_ch = prepare_ext_event_pipeline(EV_PEDS_BUTTON);
+    ext_ev_ch = prepare_ext_event_pipeline(key_decoder);
 
-    bp_ctx_t *bp_ctx = bp_new(bthreads, n, external_ev_clbk);
+    bp_ctx_t *bp_ctx = bp_new(bthreads, n, external_ev_clbk, NULL);
     log_assert(bp_ctx);
 
     LOG(INFO, "Starting");

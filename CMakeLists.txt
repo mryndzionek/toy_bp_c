@@ -27,3 +27,6 @@ target_link_libraries(button_blink ${LIBS})
 add_executable(pelican src/pelican.c ${SRCS})
 target_link_libraries(pelican ${LIBS})
 
+add_executable(tictactoe src/tictactoe.c ${SRCS})
+target_link_libraries(tictactoe ${LIBS})
+
