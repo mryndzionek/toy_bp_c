@@ -143,10 +143,10 @@ static ev_t key_decoder(char key)
 
 int main(int argc, char *argv[])
 {
-    bt_init_t bthreads[] = {{bt_cycle, NULL},
-                            {bt_intersperse, NULL},
-                            {bt_trigger, NULL},
-                            {bt_min_cars_green, NULL}};
+    const bt_init_t bthreads[] = {{bt_cycle, NULL},
+                                  {bt_intersperse, NULL},
+                                  {bt_trigger, NULL},
+                                  {bt_min_cars_green, NULL}};
     const size_t n = sizeof(bthreads) / sizeof(bthreads[0]);
 
     logging_init();

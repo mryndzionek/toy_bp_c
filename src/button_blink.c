@@ -86,7 +86,7 @@ static ev_t key_decoder(char key)
 
 int main(int argc, char *argv[])
 {
-    bt_init_t bthreads[] = {{bt_blink, NULL}, {bt_button, NULL}};
+    const bt_init_t bthreads[] = {{bt_blink, NULL}, {bt_button, NULL}};
     const size_t n = sizeof(bthreads) / sizeof(bthreads[0]);
 
     logging_init();

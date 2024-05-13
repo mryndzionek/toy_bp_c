@@ -50,9 +50,9 @@ static void bt_interleave(bt_ctx_t *ctx, void *user_ctx)
 
 int main(int argc, char *argv[])
 {
-    bt_init_t bthreads[] = {{bt_hot, NULL},
-                            {bt_cold, NULL},
-                            {bt_interleave, NULL}};
+    const bt_init_t bthreads[] = {{bt_hot, NULL},
+                                  {bt_cold, NULL},
+                                  {bt_interleave, NULL}};
     const size_t n = sizeof(bthreads) / sizeof(bthreads[0]);
 
     logging_init();

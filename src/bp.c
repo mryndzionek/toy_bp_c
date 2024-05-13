@@ -85,7 +85,7 @@ static ev_t choose_random(ev_t allowed)
     return chosen;
 }
 
-bp_ctx_t *bp_new(bt_init_t *bt_init, size_t n, external_ev_clbk_t ext_ev_clbk, render_clbk_t render_clbk)
+bp_ctx_t *bp_new(const bt_init_t *const bt_init, size_t n, external_ev_clbk_t ext_ev_clbk, render_clbk_t render_clbk)
 {
     int rc;
     int ch_shared[2];
@@ -252,12 +252,6 @@ void bp_run(bp_ctx_t *bp_ctx)
                 {
                     bp_ctx->render_clbk(chosen);
                 }
-                LOG(DEBUG, "Sending request to id: %ld", i);
-                int rc = chsend(bp_ctx->ch_out[i], &chosen, sizeof(ev_t), -1);
-                log_assert(rc == 0);
-                ev_msgs[i].req &= ~chosen;
-                req_num++;
-
                 break;
             }
         }
@@ -267,10 +261,10 @@ void bp_run(bp_ctx_t *bp_ctx)
         requested = 0;
         waiting = 0;
 
-        // propagate the chosen request event to waiting bthreads
+        // propagate the chosen request event to waiting and requesting bthreads
         for (size_t i = 0; i < bp_ctx->n; i++)
         {
-            if (chosen & (ev_msgs[i].waiting))
+            if (chosen & (ev_msgs[i].waiting | ev_msgs[i].req))
             {
                 if (!bp_ctx->bt_ctx[i].done)
                 {
