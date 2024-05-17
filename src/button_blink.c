@@ -56,15 +56,30 @@ static ev_t external_ev_clbk(void)
 
 static void bt_blink(bt_ctx_t *ctx, void *user_ctx)
 {
+    ev_t ev;
+
     while (true)
     {
-        bt_sync(ctx, EV_LED_ON, EV_NONE, EV_NONE);
-        tmr_hndl = start_timer(EV_TIMEOUT, 1000);
-        bt_sync(ctx, EV_NONE, EV_TIMEOUT, EV_NONE);
+        while (true)
+        {
+            bt_sync(ctx, EV_LED_ON, EV_NONE, EV_NONE);
+            tmr_hndl = start_timer(EV_TIMEOUT, 1000);
+            ev = bt_sync(ctx, EV_NONE, EV_TIMEOUT | EV_BUTTON, EV_NONE);
+            if (ev == EV_BUTTON)
+            {
+                stop_timer(tmr_hndl);
+                break;
+            }
 
-        bt_sync(ctx, EV_LED_OFF, EV_NONE, EV_NONE);
-        tmr_hndl = start_timer(EV_TIMEOUT, 1000);
-        bt_sync(ctx, EV_NONE, EV_TIMEOUT, EV_NONE);
+            bt_sync(ctx, EV_LED_OFF, EV_NONE, EV_NONE);
+            tmr_hndl = start_timer(EV_TIMEOUT, 1000);
+            ev = bt_sync(ctx, EV_NONE, EV_TIMEOUT | EV_BUTTON, EV_NONE);
+            if (ev == EV_BUTTON)
+            {
+                stop_timer(tmr_hndl);
+                break;
+            }
+        }
     }
 }
 
@@ -73,9 +88,7 @@ static void bt_button(bt_ctx_t *ctx, void *user_ctx)
     while (true)
     {
         bt_sync(ctx, EV_NONE, EV_BUTTON, EV_NONE);
-        stop_timer(tmr_hndl);
-        bt_sync(ctx, EV_NONE, EV_BUTTON, EV_TIMEOUT);
-        tmr_hndl = start_timer(EV_TIMEOUT, 1000);
+        bt_sync(ctx, EV_NONE, EV_BUTTON, EV_LED_ON | EV_LED_OFF);
     }
 }
 
