@@ -161,7 +161,7 @@ void bp_run(bp_ctx_t *bp_ctx)
     ev_msg_t ev_msgs[bp_ctx->n];
 
     // initialize the event table and
-    // start the bthread coroutines
+    // start the b-thread coroutines
     for (size_t i = 0; i < bp_ctx->n; i++)
     {
         ev_msgs[i].id = i;
@@ -208,6 +208,7 @@ void bp_run(bp_ctx_t *bp_ctx)
             {
                 while (true)
                 {
+                    // this in equivalent to requesting the external event
                     allowed = bp_ctx->ext_ev_clbk() & (~blocked);
                     if (allowed)
                     {
@@ -238,7 +239,7 @@ void bp_run(bp_ctx_t *bp_ctx)
 
         req_num = 0;
 
-        // find allowed event requested by highest priority task
+        // find allowed event requested by highest priority (lowest index) b-thread
         for (size_t i = 0; i < bp_ctx->n; i++)
         {
             if (allowed & (ev_msgs[i].req))
@@ -261,7 +262,7 @@ void bp_run(bp_ctx_t *bp_ctx)
         requested = 0;
         waiting = 0;
 
-        // propagate the chosen request event to waiting and requesting bthreads
+        // propagate the chosen request event to waiting and requesting b-threads
         for (size_t i = 0; i < bp_ctx->n; i++)
         {
             if (chosen & (ev_msgs[i].waiting | ev_msgs[i].req))

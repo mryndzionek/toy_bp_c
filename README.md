@@ -2,6 +2,10 @@
 
 ## About
 
+> This seems like a natural approach to programming. It allows one to specify
+a desired complex behavior by decomposing it into an set of simpler, relatively
+independent behaviors, that can be executed collectively in a meaningful way.[^1]
+
 Toy [behavioral programming](https://www.wisdom.weizmann.ac.il/~bprogram/more.html) framework in C.
 Uses [libdill](https://github.com/sustrik/libdill) for coroutines, channels and timings.
 Individual b-threads are libdill's coroutines communicating with the main BP scheduler using
@@ -166,3 +170,6 @@ Keyboard controls:
        not on any formal description, so the scheduler might need some more work
  - [ ] event sets are just simple 32-bit flags. Proper abstract sets are needed for full
        functionality
+
+[^1]: "*Programming Coordinated Behavior in Java*", David Harel, Assaf Marron, Gera Weiss
+
