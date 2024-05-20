@@ -23,6 +23,7 @@ struct _bp_ctx_t
 {
     bt_ctx_t *bt_ctx;
     int *ch_out;
+    int bundle;
     size_t n;
     int ch_in;
     external_ev_clbk_t ext_ev_clbk;
@@ -153,12 +154,15 @@ ev_t bt_sync(bt_ctx_t *ctx, ev_t req, ev_t waiting, ev_t blocked)
 
 void bp_run(bp_ctx_t *bp_ctx)
 {
+    int ret;
     ev_t blocked = 0;
     ev_t requested = 0;
     ev_t waiting = 0;
 
     ev_msg_t ev_msg;
     ev_msg_t ev_msgs[bp_ctx->n];
+
+    bp_ctx->bundle = bundle();
 
     // initialize the event table and
     // start the b-thread coroutines
@@ -169,7 +173,8 @@ void bp_run(bp_ctx_t *bp_ctx)
         ev_msgs[i].waiting = 0;
         ev_msgs[i].blocked = 0;
 
-        go(bt_thread(&bp_ctx->bt_ctx[i]));
+        ret = bundle_go(bp_ctx->bundle, bt_thread(&bp_ctx->bt_ctx[i]));
+        log_assert(ret == 0);
     }
 
     size_t req_num = bp_ctx->n;
