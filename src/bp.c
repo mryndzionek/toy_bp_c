@@ -152,6 +152,11 @@ ev_t bt_sync(bt_ctx_t *ctx, ev_t req, ev_t waiting, ev_t blocked)
     return ev;
 }
 
+ev_t bt_cancel_evs(bt_ctx_t *ctx)
+{
+    return ctx->init.cancel_evs;
+}
+
 void bp_run(bp_ctx_t *bp_ctx)
 {
     int ret;
@@ -190,7 +195,7 @@ void bp_run(bp_ctx_t *bp_ctx)
 
             size_t i = ev_msg.id;
             ev_msgs[i].req = ev_msg.req;
-            ev_msgs[i].waiting = ev_msg.waiting;
+            ev_msgs[i].waiting = ev_msg.waiting | bp_ctx->bt_ctx[i].init.cancel_evs;
             ev_msgs[i].blocked = ev_msg.blocked;
 
             requested |= ev_msgs[i].req;

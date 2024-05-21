@@ -17,7 +17,11 @@ static const ev_t EV_PEDS_BUTTON = 1UL << 5;
 
 static const ev_t EV_PEDS_OFF = 1UL << 6;
 
+static const ev_t EV_FAILURE = 1UL << 7;
+static const ev_t EV_CANCEL = 1UL << 8;
+
 static int ext_ev_ch;
+static int tmr_hndl;
 
 const char *ev_to_str(ev_t ev)
 {
@@ -49,6 +53,14 @@ const char *ev_to_str(ev_t ev)
     {
         return "EV_PEDS_OFF";
     }
+    else if (ev == EV_FAILURE)
+    {
+        return "EV_FAILURE";
+    }
+    else if (ev == EV_CANCEL)
+    {
+        return "EV_CANCEL";
+    }
     else
     {
         return "Unknown";
@@ -61,17 +73,23 @@ static void bt_cycle(bt_ctx_t *ctx, void *user_ctx)
 {
     while (true)
     {
-        bt_sync(ctx, EV_CARS_GREEN, EV_NONE, EV_NONE);
-        bt_sync(ctx, EV_CARS_YELLOW, EV_NONE, EV_NONE);
-        bt_sync(ctx, EV_PEDS_WALK, EV_NONE, EV_NONE);
-
-        for (size_t i = 0; i < 3; i++)
+        LOG(INFO, "STarting cycle");
+        while (true)
         {
-            // Flash pedestrian light
-            bt_sync(ctx, EV_PEDS_OFF, EV_NONE, EV_NONE);
-            bt_sync(ctx, EV_PEDS_WALK, EV_NONE, EV_NONE);
+            BT_SYNC(ctx, EV_CARS_GREEN, EV_NONE, EV_NONE);
+            BT_SYNC(ctx, EV_CARS_YELLOW, EV_NONE, EV_NONE);
+            BT_SYNC(ctx, EV_PEDS_WALK, EV_NONE, EV_NONE);
+
+            for (size_t i = 0; i < 3; i++)
+            {
+                // Flash pedestrian light
+                BT_SYNC(ctx, EV_PEDS_OFF, EV_NONE, EV_NONE);
+                BT_SYNC(ctx, EV_PEDS_WALK, EV_NONE, EV_NONE);
+            }
+            BT_SYNC(ctx, EV_PEDS_OFF, EV_NONE, EV_NONE);
         }
-        bt_sync(ctx, EV_PEDS_OFF, EV_NONE, EV_NONE);
+
+        BT_ON_CANCEL();
     }
 }
 
@@ -82,20 +100,25 @@ static void bt_intersperse(bt_ctx_t *ctx, void *user_ctx)
 
     while (true)
     {
-        // on EV_CARS_YELLOW, or EV_PEDS_WALK, or EV_PEDS_OFF
-        ev_t ev = bt_sync(ctx, EV_NONE, EV_CARS_YELLOW | EV_PEDS_WALK | EV_PEDS_OFF, EV_NONE);
-        if (ev == EV_CARS_YELLOW)
+        while (true)
         {
-            tmout = 3000;
+            // on EV_CARS_YELLOW, or EV_PEDS_WALK, or EV_PEDS_OFF
+            ev_t ev = BT_SYNC(ctx, EV_NONE, EV_CARS_YELLOW | EV_PEDS_WALK | EV_PEDS_OFF, EV_NONE);
+            if (ev == EV_CARS_YELLOW)
+            {
+                tmout = 3000;
+            }
+            else if (ev == EV_PEDS_OFF)
+            {
+                tmout = 500;
+            }
+            // start a timeout timer
+            tmr_hndl = start_timer(EV_LIGHT_TIMEOUT, tmout);
+            // wait for the timer event while blocking the successive events
+            BT_SYNC(ctx, EV_NONE, EV_LIGHT_TIMEOUT, EV_PEDS_WALK | EV_PEDS_OFF | EV_CARS_GREEN);
         }
-        else if (ev == EV_PEDS_OFF)
-        {
-            tmout = 500;
-        }
-        // start a timeout timer
-        start_timer(EV_LIGHT_TIMEOUT, tmout);
-        // wait for the timer event while blocking the successive events
-        bt_sync(ctx, EV_NONE, EV_LIGHT_TIMEOUT, EV_PEDS_WALK | EV_PEDS_OFF | EV_CARS_GREEN);
+
+        BT_ON_CANCEL();
     }
 }
 
@@ -106,8 +129,13 @@ static void bt_trigger(bt_ctx_t *ctx, void *user_ctx)
 {
     while (true)
     {
-        bt_sync(ctx, EV_NONE, EV_PEDS_BUTTON, EV_CARS_YELLOW);
-        bt_sync(ctx, EV_NONE, EV_CARS_GREEN, EV_PEDS_BUTTON);
+        while (true)
+        {
+            BT_SYNC(ctx, EV_NONE, EV_PEDS_BUTTON, EV_CARS_YELLOW);
+            BT_SYNC(ctx, EV_NONE, EV_CARS_GREEN, EV_PEDS_BUTTON);
+        }
+
+        BT_ON_CANCEL();
     }
 }
 
@@ -117,12 +145,30 @@ static void bt_min_cars_green(bt_ctx_t *ctx, void *user_ctx)
 {
     while (true)
     {
-        // after 'cars green' block 'cars yellow'
-        // for 5s
-        bt_sync(ctx, EV_NONE, EV_CARS_GREEN, EV_NONE);
-        start_timer(EV_LIGHT_TIMEOUT, 5000);
-        bt_sync(ctx, EV_NONE, EV_LIGHT_TIMEOUT, EV_CARS_YELLOW);
+        while (true)
+        {
+            // after 'cars green' block 'cars yellow'
+            // for 5s
+            BT_SYNC(ctx, EV_NONE, EV_CARS_GREEN, EV_NONE);
+            tmr_hndl = start_timer(EV_LIGHT_TIMEOUT, 5000);
+            BT_SYNC(ctx, EV_NONE, EV_LIGHT_TIMEOUT, EV_CARS_YELLOW);
+        }
+
+        BT_ON_CANCEL();
     }
+}
+
+static void bt_failure(bt_ctx_t *ctx, void *user_ctx)
+{
+    while (true)
+    {
+        BT_SYNC(ctx, EV_NONE, EV_FAILURE, EV_NONE);
+        stop_timer(tmr_hndl);
+        BT_SYNC(ctx, EV_CANCEL, EV_NONE, EV_NONE);
+        BT_SYNC(ctx, EV_NONE, EV_FAILURE, EV_CARS_GREEN);
+    }
+
+    BT_ON_CANCEL();
 }
 
 static ev_t external_ev_clbk(void)
@@ -138,15 +184,23 @@ static ev_t external_ev_clbk(void)
 
 static ev_t key_decoder(char key)
 {
-    return EV_PEDS_BUTTON;
+    if (key == 'a')
+    {
+        return EV_FAILURE;
+    }
+    else
+    {
+        return EV_PEDS_BUTTON;
+    }
 }
 
 int main(int argc, char *argv[])
 {
-    const bt_init_t bthreads[] = {{bt_cycle, NULL},
-                                  {bt_intersperse, NULL},
-                                  {bt_trigger, NULL},
-                                  {bt_min_cars_green, NULL}};
+    const bt_init_t bthreads[] = {{bt_cycle, EV_CANCEL, .user_ctx = NULL},
+                                  {bt_intersperse, EV_CANCEL, .user_ctx = NULL},
+                                  {bt_trigger, EV_CANCEL, .user_ctx = NULL},
+                                  {bt_min_cars_green, EV_CANCEL, .user_ctx = NULL},
+                                  {bt_failure, .user_ctx = NULL}};
     const size_t n = sizeof(bthreads) / sizeof(bthreads[0]);
 
     logging_init();

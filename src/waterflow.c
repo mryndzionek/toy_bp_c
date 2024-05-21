@@ -27,32 +27,38 @@ const char *ev_to_str(ev_t ev)
 
 static void bt_cold(bt_ctx_t *ctx, void *user_ctx)
 {
-    bt_sync(ctx, EV_ADD_COLD, EV_NONE, EV_NONE);
-    bt_sync(ctx, EV_ADD_COLD, EV_NONE, EV_NONE);
-    bt_sync(ctx, EV_ADD_COLD, EV_NONE, EV_NONE);
+    BT_SYNC(ctx, EV_ADD_COLD, EV_NONE, EV_NONE);
+    BT_SYNC(ctx, EV_ADD_COLD, EV_NONE, EV_NONE);
+    BT_SYNC(ctx, EV_ADD_COLD, EV_NONE, EV_NONE);
+
+    BT_ON_CANCEL();
 }
 
 static void bt_hot(bt_ctx_t *ctx, void *user_ctx)
 {
-    bt_sync(ctx, EV_ADD_HOT, EV_NONE, EV_NONE);
-    bt_sync(ctx, EV_ADD_HOT, EV_NONE, EV_NONE);
-    bt_sync(ctx, EV_ADD_HOT, EV_NONE, EV_NONE);
+    BT_SYNC(ctx, EV_ADD_HOT, EV_NONE, EV_NONE);
+    BT_SYNC(ctx, EV_ADD_HOT, EV_NONE, EV_NONE);
+    BT_SYNC(ctx, EV_ADD_HOT, EV_NONE, EV_NONE);
+
+    BT_ON_CANCEL();
 }
 
 static void bt_interleave(bt_ctx_t *ctx, void *user_ctx)
 {
     while (true)
     {
-        bt_sync(ctx, 0, EV_ADD_HOT, EV_ADD_COLD);
-        bt_sync(ctx, 0, EV_ADD_COLD, EV_ADD_HOT);
+        BT_SYNC(ctx, 0, EV_ADD_HOT, EV_ADD_COLD);
+        BT_SYNC(ctx, 0, EV_ADD_COLD, EV_ADD_HOT);
     }
+
+    BT_ON_CANCEL();
 }
 
 int main(int argc, char *argv[])
 {
-    const bt_init_t bthreads[] = {{bt_hot, NULL},
-                                  {bt_cold, NULL},
-                                  {bt_interleave, NULL}};
+    const bt_init_t bthreads[] = {{bt_hot, .user_ctx = NULL},
+                                  {bt_cold, .user_ctx = NULL},
+                                  {bt_interleave, .user_ctx = NULL}};
     const size_t n = sizeof(bthreads) / sizeof(bthreads[0]);
 
     logging_init();

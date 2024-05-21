@@ -142,7 +142,7 @@ static void bt_square_taken(bt_ctx_t *ctx, void *user_ctx)
 
     while (true)
     {
-        ev_t ev = bt_sync(ctx, EV_NONE, EV_ALL_MOVES, blocked);
+        ev_t ev = BT_SYNC(ctx, EV_NONE, EV_ALL_MOVES, blocked);
         blocked |= ev;
         if (ev < (1UL << N_POS))
         {
@@ -153,33 +153,41 @@ static void bt_square_taken(bt_ctx_t *ctx, void *user_ctx)
             blocked |= ev >> N_POS;
         }
     }
+
+    BT_ON_CANCEL();
 }
 
 static void bt_enforce_turns(bt_ctx_t *ctx, void *user_ctx)
 {
     while (true)
     {
-        bt_sync(ctx, EV_NONE, EV_ALL_X_MOVES, EV_ALL_O_MOVES);
-        bt_sync(ctx, EV_NONE, EV_ALL_O_MOVES, EV_ALL_X_MOVES);
+        BT_SYNC(ctx, EV_NONE, EV_ALL_X_MOVES, EV_ALL_O_MOVES);
+        BT_SYNC(ctx, EV_NONE, EV_ALL_O_MOVES, EV_ALL_X_MOVES);
     }
+
+    BT_ON_CANCEL();
 }
 
 static void bt_end_of_game(bt_ctx_t *ctx, void *user_ctx)
 {
     while (true)
     {
-        bt_sync(ctx, EV_NONE, EV_TERMINAL, EV_NONE);
-        bt_sync(ctx, EV_NONE, EV_NONE, EV_ALL_MOVES);
+        BT_SYNC(ctx, EV_NONE, EV_TERMINAL, EV_NONE);
+        BT_SYNC(ctx, EV_NONE, EV_NONE, EV_ALL_MOVES);
     }
+
+    BT_ON_CANCEL();
 }
 
 static void bt_detect_draw(bt_ctx_t *ctx, void *user_ctx)
 {
     for (size_t i = 0; i < N_POS; i++)
     {
-        bt_sync(ctx, EV_NONE, EV_ALL_MOVES, EV_NONE);
+        BT_SYNC(ctx, EV_NONE, EV_ALL_MOVES, EV_NONE);
     }
-    bt_sync(ctx, EV_DRAW, EV_NONE, EV_NONE);
+    BT_SYNC(ctx, EV_DRAW, EV_NONE, EV_NONE);
+
+    BT_ON_CANCEL();
 }
 
 static void bt_detect_x_win(bt_ctx_t *ctx, void *user_ctx)
@@ -188,9 +196,11 @@ static void bt_detect_x_win(bt_ctx_t *ctx, void *user_ctx)
 
     for (size_t i = 0; i < N_ROWS; i++)
     {
-        bt_sync(ctx, EV_NONE, line, EV_NONE);
+        BT_SYNC(ctx, EV_NONE, line, EV_NONE);
     }
-    bt_sync(ctx, EV_X_WIN, EV_NONE, EV_NONE);
+    BT_SYNC(ctx, EV_X_WIN, EV_NONE, EV_NONE);
+
+    BT_ON_CANCEL();
 }
 
 static void bt_detect_o_win(bt_ctx_t *ctx, void *user_ctx)
@@ -199,35 +209,43 @@ static void bt_detect_o_win(bt_ctx_t *ctx, void *user_ctx)
 
     for (size_t i = 0; i < N_ROWS; i++)
     {
-        bt_sync(ctx, EV_NONE, line, EV_NONE);
+        BT_SYNC(ctx, EV_NONE, line, EV_NONE);
     }
-    bt_sync(ctx, EV_O_WIN, EV_NONE, EV_NONE);
+    BT_SYNC(ctx, EV_O_WIN, EV_NONE, EV_NONE);
+
+    BT_ON_CANCEL();
 }
 
 static void bt_center_preference(bt_ctx_t *ctx, void *user_ctx)
 {
     while (true)
     {
-        bt_sync(ctx, EV_O_1_1, EV_NONE, EV_NONE);
+        BT_SYNC(ctx, EV_O_1_1, EV_NONE, EV_NONE);
     }
+
+    BT_ON_CANCEL();
 }
 
 static void bt_corner_preference(bt_ctx_t *ctx, void *user_ctx)
 {
     while (true)
     {
-        bt_sync(ctx, EV_O_0_0 | EV_O_0_2 | EV_O_2_0 | EV_O_2_2,
+        BT_SYNC(ctx, EV_O_0_0 | EV_O_0_2 | EV_O_2_0 | EV_O_2_2,
                 EV_NONE, EV_NONE);
     }
+
+    BT_ON_CANCEL();
 }
 
 static void bt_side_preference(bt_ctx_t *ctx, void *user_ctx)
 {
     while (true)
     {
-        bt_sync(ctx, EV_O_0_1 | EV_O_1_0 | EV_O_1_2 | EV_O_2_1,
+        BT_SYNC(ctx, EV_O_0_1 | EV_O_1_0 | EV_O_1_2 | EV_O_2_1,
                 EV_NONE, EV_NONE);
     }
+
+    BT_ON_CANCEL();
 }
 
 static void bt_add_third_o(bt_ctx_t *ctx, void *user_ctx)
@@ -236,9 +254,11 @@ static void bt_add_third_o(bt_ctx_t *ctx, void *user_ctx)
 
     for (size_t i = 0; i < 2; i++)
     {
-        bt_sync(ctx, EV_NONE, line, EV_NONE);
+        BT_SYNC(ctx, EV_NONE, line, EV_NONE);
     }
-    bt_sync(ctx, line, EV_NONE, EV_NONE);
+    BT_SYNC(ctx, line, EV_NONE, EV_NONE);
+
+    BT_ON_CANCEL();
 }
 
 static void bt_prevent_third_x(bt_ctx_t *ctx, void *user_ctx)
@@ -247,9 +267,11 @@ static void bt_prevent_third_x(bt_ctx_t *ctx, void *user_ctx)
 
     for (size_t i = 0; i < 2; i++)
     {
-        bt_sync(ctx, EV_NONE, *lines->x_ev, EV_NONE);
+        BT_SYNC(ctx, EV_NONE, *lines->x_ev, EV_NONE);
     }
-    bt_sync(ctx, *lines->o_ev, EV_NONE, EV_NONE);
+    BT_SYNC(ctx, *lines->o_ev, EV_NONE, EV_NONE);
+
+    BT_ON_CANCEL();
 }
 
 static void bt_block_fork(bt_ctx_t *ctx, void *user_ctx)
@@ -258,9 +280,11 @@ static void bt_block_fork(bt_ctx_t *ctx, void *user_ctx)
 
     for (size_t i = 0; i < 2; i++)
     {
-        bt_sync(ctx, EV_NONE, *forks->x_ev, EV_NONE);
+        BT_SYNC(ctx, EV_NONE, *forks->x_ev, EV_NONE);
     }
-    bt_sync(ctx, *forks->o_ev, EV_NONE, EV_NONE);
+    BT_SYNC(ctx, *forks->o_ev, EV_NONE, EV_NONE);
+
+    BT_ON_CANCEL();
 }
 
 static ev_t external_ev_clbk(void)
@@ -354,59 +378,59 @@ static void render_clbk(ev_t ev)
 
 int main(int argc, char *argv[])
 {
-    const bt_init_t bthreads[] = {{bt_square_taken, NULL},
-                                  {bt_enforce_turns, NULL},
-                                  {bt_end_of_game, NULL},
-                                  {bt_detect_x_win, (void *)&x_lines[0]},
-                                  {bt_detect_x_win, (void *)&x_lines[1]},
-                                  {bt_detect_x_win, (void *)&x_lines[2]},
-                                  {bt_detect_x_win, (void *)&x_lines[3]},
-                                  {bt_detect_x_win, (void *)&x_lines[4]},
-                                  {bt_detect_x_win, (void *)&x_lines[5]},
-                                  {bt_detect_x_win, (void *)&x_lines[6]},
-                                  {bt_detect_x_win, (void *)&x_lines[7]},
-                                  {bt_detect_o_win, (void *)&o_lines[0]},
-                                  {bt_detect_o_win, (void *)&o_lines[1]},
-                                  {bt_detect_o_win, (void *)&o_lines[2]},
-                                  {bt_detect_o_win, (void *)&o_lines[3]},
-                                  {bt_detect_o_win, (void *)&o_lines[4]},
-                                  {bt_detect_o_win, (void *)&o_lines[5]},
-                                  {bt_detect_o_win, (void *)&o_lines[6]},
-                                  {bt_detect_o_win, (void *)&o_lines[7]},
-                                  {bt_detect_draw, NULL},
-                                  {bt_add_third_o, (void *)&o_lines[0]},
-                                  {bt_add_third_o, (void *)&o_lines[1]},
-                                  {bt_add_third_o, (void *)&o_lines[2]},
-                                  {bt_add_third_o, (void *)&o_lines[3]},
-                                  {bt_add_third_o, (void *)&o_lines[4]},
-                                  {bt_add_third_o, (void *)&o_lines[5]},
-                                  {bt_add_third_o, (void *)&o_lines[6]},
-                                  {bt_add_third_o, (void *)&o_lines[7]},
-                                  {bt_prevent_third_x, &(ev_p_pair){.o_ev = &o_lines[0], .x_ev = &x_lines[0]}},
-                                  {bt_prevent_third_x, &(ev_p_pair){.o_ev = &o_lines[1], .x_ev = &x_lines[1]}},
-                                  {bt_prevent_third_x, &(ev_p_pair){.o_ev = &o_lines[2], .x_ev = &x_lines[2]}},
-                                  {bt_prevent_third_x, &(ev_p_pair){.o_ev = &o_lines[3], .x_ev = &x_lines[3]}},
-                                  {bt_prevent_third_x, &(ev_p_pair){.o_ev = &o_lines[4], .x_ev = &x_lines[4]}},
-                                  {bt_prevent_third_x, &(ev_p_pair){.o_ev = &o_lines[5], .x_ev = &x_lines[5]}},
-                                  {bt_prevent_third_x, &(ev_p_pair){.o_ev = &o_lines[6], .x_ev = &x_lines[6]}},
-                                  {bt_prevent_third_x, &(ev_p_pair){.o_ev = &o_lines[7], .x_ev = &x_lines[7]}},
-                                  {bt_block_fork, &(ev_p_pair){.x_ev = &forks22[0], .o_ev = &forks22_d}},
-                                  {bt_block_fork, &(ev_p_pair){.x_ev = &forks22[1], .o_ev = &forks22_d}},
-                                  {bt_block_fork, &(ev_p_pair){.x_ev = &forks22[2], .o_ev = &forks22_d}},
-                                  {bt_block_fork, &(ev_p_pair){.x_ev = &forks02[0], .o_ev = &forks02_d}},
-                                  {bt_block_fork, &(ev_p_pair){.x_ev = &forks02[1], .o_ev = &forks02_d}},
-                                  {bt_block_fork, &(ev_p_pair){.x_ev = &forks02[2], .o_ev = &forks02_d}},
-                                  {bt_block_fork, &(ev_p_pair){.x_ev = &forks20[0], .o_ev = &forks20_d}},
-                                  {bt_block_fork, &(ev_p_pair){.x_ev = &forks20[1], .o_ev = &forks20_d}},
-                                  {bt_block_fork, &(ev_p_pair){.x_ev = &forks20[2], .o_ev = &forks20_d}},
-                                  {bt_block_fork, &(ev_p_pair){.x_ev = &forks00[0], .o_ev = &forks00_d}},
-                                  {bt_block_fork, &(ev_p_pair){.x_ev = &forks00[1], .o_ev = &forks00_d}},
-                                  {bt_block_fork, &(ev_p_pair){.x_ev = &forks00[2], .o_ev = &forks00_d}},
-                                  {bt_block_fork, &(ev_p_pair){.x_ev = &forks_diag[0], .o_ev = &forks_diag_d}},
-                                  {bt_block_fork, &(ev_p_pair){.x_ev = &forks_diag[1], .o_ev = &forks_diag_d}},
-                                  {bt_center_preference, NULL},
-                                  {bt_corner_preference, NULL},
-                                  {bt_side_preference, NULL}};
+    const bt_init_t bthreads[] = {{bt_square_taken, .user_ctx = NULL},
+                                  {bt_enforce_turns, .user_ctx = NULL},
+                                  {bt_end_of_game, .user_ctx = NULL},
+                                  {bt_detect_x_win, .user_ctx = (void *)&x_lines[0]},
+                                  {bt_detect_x_win, .user_ctx = (void *)&x_lines[1]},
+                                  {bt_detect_x_win, .user_ctx = (void *)&x_lines[2]},
+                                  {bt_detect_x_win, .user_ctx = (void *)&x_lines[3]},
+                                  {bt_detect_x_win, .user_ctx = (void *)&x_lines[4]},
+                                  {bt_detect_x_win, .user_ctx = (void *)&x_lines[5]},
+                                  {bt_detect_x_win, .user_ctx = (void *)&x_lines[6]},
+                                  {bt_detect_x_win, .user_ctx = (void *)&x_lines[7]},
+                                  {bt_detect_o_win, .user_ctx = (void *)&o_lines[0]},
+                                  {bt_detect_o_win, .user_ctx = (void *)&o_lines[1]},
+                                  {bt_detect_o_win, .user_ctx = (void *)&o_lines[2]},
+                                  {bt_detect_o_win, .user_ctx = (void *)&o_lines[3]},
+                                  {bt_detect_o_win, .user_ctx = (void *)&o_lines[4]},
+                                  {bt_detect_o_win, .user_ctx = (void *)&o_lines[5]},
+                                  {bt_detect_o_win, .user_ctx = (void *)&o_lines[6]},
+                                  {bt_detect_o_win, .user_ctx = (void *)&o_lines[7]},
+                                  {bt_detect_draw, .user_ctx = NULL},
+                                  {bt_add_third_o, .user_ctx = (void *)&o_lines[0]},
+                                  {bt_add_third_o, .user_ctx = (void *)&o_lines[1]},
+                                  {bt_add_third_o, .user_ctx = (void *)&o_lines[2]},
+                                  {bt_add_third_o, .user_ctx = (void *)&o_lines[3]},
+                                  {bt_add_third_o, .user_ctx = (void *)&o_lines[4]},
+                                  {bt_add_third_o, .user_ctx = (void *)&o_lines[5]},
+                                  {bt_add_third_o, .user_ctx = (void *)&o_lines[6]},
+                                  {bt_add_third_o, .user_ctx = (void *)&o_lines[7]},
+                                  {bt_prevent_third_x, .user_ctx = &(ev_p_pair){.o_ev = &o_lines[0], .x_ev = &x_lines[0]}},
+                                  {bt_prevent_third_x, .user_ctx = &(ev_p_pair){.o_ev = &o_lines[1], .x_ev = &x_lines[1]}},
+                                  {bt_prevent_third_x, .user_ctx = &(ev_p_pair){.o_ev = &o_lines[2], .x_ev = &x_lines[2]}},
+                                  {bt_prevent_third_x, .user_ctx = &(ev_p_pair){.o_ev = &o_lines[3], .x_ev = &x_lines[3]}},
+                                  {bt_prevent_third_x, .user_ctx = &(ev_p_pair){.o_ev = &o_lines[4], .x_ev = &x_lines[4]}},
+                                  {bt_prevent_third_x, .user_ctx = &(ev_p_pair){.o_ev = &o_lines[5], .x_ev = &x_lines[5]}},
+                                  {bt_prevent_third_x, .user_ctx = &(ev_p_pair){.o_ev = &o_lines[6], .x_ev = &x_lines[6]}},
+                                  {bt_prevent_third_x, .user_ctx = &(ev_p_pair){.o_ev = &o_lines[7], .x_ev = &x_lines[7]}},
+                                  {bt_block_fork, .user_ctx = &(ev_p_pair){.x_ev = &forks22[0], .o_ev = &forks22_d}},
+                                  {bt_block_fork, .user_ctx = &(ev_p_pair){.x_ev = &forks22[1], .o_ev = &forks22_d}},
+                                  {bt_block_fork, .user_ctx = &(ev_p_pair){.x_ev = &forks22[2], .o_ev = &forks22_d}},
+                                  {bt_block_fork, .user_ctx = &(ev_p_pair){.x_ev = &forks02[0], .o_ev = &forks02_d}},
+                                  {bt_block_fork, .user_ctx = &(ev_p_pair){.x_ev = &forks02[1], .o_ev = &forks02_d}},
+                                  {bt_block_fork, .user_ctx = &(ev_p_pair){.x_ev = &forks02[2], .o_ev = &forks02_d}},
+                                  {bt_block_fork, .user_ctx = &(ev_p_pair){.x_ev = &forks20[0], .o_ev = &forks20_d}},
+                                  {bt_block_fork, .user_ctx = &(ev_p_pair){.x_ev = &forks20[1], .o_ev = &forks20_d}},
+                                  {bt_block_fork, .user_ctx = &(ev_p_pair){.x_ev = &forks20[2], .o_ev = &forks20_d}},
+                                  {bt_block_fork, .user_ctx = &(ev_p_pair){.x_ev = &forks00[0], .o_ev = &forks00_d}},
+                                  {bt_block_fork, .user_ctx = &(ev_p_pair){.x_ev = &forks00[1], .o_ev = &forks00_d}},
+                                  {bt_block_fork, .user_ctx = &(ev_p_pair){.x_ev = &forks00[2], .o_ev = &forks00_d}},
+                                  {bt_block_fork, .user_ctx = &(ev_p_pair){.x_ev = &forks_diag[0], .o_ev = &forks_diag_d}},
+                                  {bt_block_fork, .user_ctx = &(ev_p_pair){.x_ev = &forks_diag[1], .o_ev = &forks_diag_d}},
+                                  {bt_center_preference, .user_ctx = NULL},
+                                  {bt_corner_preference, .user_ctx = NULL},
+                                  {bt_side_preference, .user_ctx = NULL}};
     const size_t n = sizeof(bthreads) / sizeof(bthreads[0]);
 
     logging_init();

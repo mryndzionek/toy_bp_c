@@ -29,23 +29,28 @@ static void bt_ping(bt_ctx_t *ctx, void *user_ctx)
 {
     for (size_t i = 0; i < 10; i++)
     {
-        bt_sync(ctx, EV_PING, EV_NONE, EV_NONE);
-        bt_sync(ctx, EV_NONE, EV_PONG, EV_NONE);
+        BT_SYNC(ctx, EV_PING, EV_NONE, EV_NONE);
+        BT_SYNC(ctx, EV_NONE, EV_PONG, EV_NONE);
     }
+
+    BT_ON_CANCEL();
 }
 
 static void bt_pong(bt_ctx_t *ctx, void *user_ctx)
 {
     for (size_t i = 0; i < 10; i++)
     {
-        bt_sync(ctx, EV_NONE, EV_PING, EV_NONE);
-        bt_sync(ctx, EV_PONG, EV_NONE, EV_NONE);
+        BT_SYNC(ctx, EV_NONE, EV_PING, EV_NONE);
+        BT_SYNC(ctx, EV_PONG, EV_NONE, EV_NONE);
     }
+
+    BT_ON_CANCEL();
 }
 
 int main(int argc, char *argv[])
 {
-    const bt_init_t bthreads[] = {{bt_ping, NULL}, {bt_pong, NULL}};
+    const bt_init_t bthreads[] = {{bt_ping, .user_ctx = NULL},
+                                  {bt_pong, .user_ctx = NULL}};
     const size_t n = sizeof(bthreads) / sizeof(bthreads[0]);
 
     logging_init();
