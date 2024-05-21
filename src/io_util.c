@@ -60,11 +60,11 @@ int start_timer(ev_t ev, int64_t ms)
     return h;
 }
 
-void stop_timer(int hndl)
+int stop_timer(int hndl)
 {
     LOG(DEBUG, "stopping timer");
     int rc = hclose(hndl);
-    log_assert(rc == 0);
+    return rc;
 }
 
 int prepare_ext_event_pipeline(key_decoder_t key_decoder)
